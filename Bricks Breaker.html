@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>Brick Game</title>
+
+<style>
+#myCanvas{
+border:3px solid #0b0c0b;
+width:50;
+height:20;	
+position:relative;
+left:150px;
+top :30px;
+}
+.bg{
+ background-image: url("brick-wallpaper-wood-floor.jpg");
+
+    /* Full height */
+    height: 100%; 
+
+    /* Center and scale the image nicely */
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+ }
+</style>
+
+</head>
+
+<body>
+<div class = "bg">
+<canvas id = "myCanvas" width="1000" height="600"></canvas>
+</div>
+<script type="text/javascript">
+	var canvas = document.getElementById("myCanvas");
+    var ctx = canvas.getContext("2d");
+	img = new Image();
+	img.src = "tabletennis.jpg";
+    var x = canvas.width / 2;
+    var y = canvas.height - 30;
+    var dx = 3;
+    var dy = -3;
+    var pongH = 15;
+    var pongW = 90;
+    var pongX = (canvas.width - pongW) / 2;
+    var rightKey = false;
+    var leftKey = false;
+	var rows = 4;
+	var columns = 7;
+      
+    // function draw the pong
+    function drawPong() {
+		ctx.beginPath();
+        ctx.rect(pongX, canvas.height - 30, pongW, pongH);
+        ctx.fillStyle = "black";
+        ctx.fill();
+        ctx.closePath();
+      }
+	  
+	function drawBricks(){
+		
+		var c = document.getElementById("myCanvas");
+		var ctx = c.getContext("2d");
+		ctx.shadowBlur = 20;
+		ctx.fillStyle = "red";
+		ctx.border = "blue";
+		ctx.shadowColor = "black";
+		 for(i=1;i<=11;i++){
+			ctx.fillRect((i*78), 10, 60, 20);
+			console.log();
+			ctx.fillRect((i*78), 40, 60, 20);
+			ctx.fillRect((i*78), 70, 60, 20);
+			ctx.fillRect((i*78), 100, 60, 20);
+			ctx.fillRect((i*78), 130, 60, 20);
+		} 
+	}
+		
+
+    function draw() {
+		ctx.clearRect(0, 0, canvas.width, canvas.height);
+        drawPong();
+		drawBricks();
+
+        // when key is pressed 
+        function keyDown(e) {
+          if (e.keyCode == 39) {
+            rightKey = true;
+          } else if (e.keyCode == 37) {
+            leftKey = true;
+          }
+        }
+
+        // when key is not pressed
+        function keyUp(e) {
+          if (e.keyCode == 39) {
+            rightKey = false;
+          } else if (e.keyCode == 37) {
+            leftKey = false;
+          }
+        }
+
+        // Add an event listener to the keypress event.
+        document.addEventListener("keydown", keyDown, false);
+        document.addEventListener("keyup", keyUp, false);
+
+        // move the pong right if the right key pressed
+        if (rightKey && pongX < canvas.width - pongW) {
+          pongX += 5;
+        }
+        // move the pong left if the left key pressed
+        else if (leftKey && pongX > 0) {
+          pongX -= 5;
+        }
+      }
+      setInterval(draw, 10);
+	  
+    </script>
+</body>
+
+</html>

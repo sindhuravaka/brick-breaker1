@@ -1,0 +1,262 @@
+<html>
+<head>
+ <style>
+ 
+ #myCanvas{
+ background: white; 
+ border:3px solid #0b0c0b;	
+ position:relative;
+ left:80px;
+ top :30px;
+ }
+
+ body {
+    background-color: lightblue;
+}
+
+div.picture1 {
+   width:100px; /*width of your image*/
+   height:100px; /*height of your image*/
+   background-image:url('http://www.html5canvastutorials.com/demos/assets/darth-vader.jpg');
+   margin:0; /* If you want no margin */
+   padding:0; /*if your want to padding */
+}
+
+ </style>
+</head>
+<body >
+<div class="picture1">
+<canvas id="myCanvas" width="1200" height="600"></canvas>
+</div>
+</body>
+<script>
+var canvas = document.getElementById("myCanvas");
+var ctx = canvas.getContext("2d");
+/*
+// Create gradient
+var grd = ctx.createRadialGradient(85,50,3,100,60,90);
+grd.addColorStop(0,"red");
+grd.addColorStop(1,"brown");
+
+// Fill with gradient
+ctx.fillStyle = grd;
+ctx.fillRect(10,10,150,80);*/
+
+ var imageObj = new Image();
+
+      imageObj.onload = function() {
+        ctx.drawImage(imageObj, 69, 50);
+      };
+      imageObj.src = 'https://www.google.co.in/search?q=image+brick&rlz=1C1CHZL_enIN754IN754&tbm=isch&source=iu&pf=m&ictx=1&fir=gvQsq5Gig6S9WM%253A%252CPik4mO0JvFdW7M%252C_&usg=__BSz9-UUu-OGauwJi3Ag2rwEEeHg%3D&sa=X&ved=0ahUKEwizmKjQpZXXAhULtY8KHUP7CHQQ9QEIKzAC#imgrc=gvQsq5Gig6S9WM:';
+
+
+var ballRadius = 7;
+var x = canvas.width/2;
+var y = canvas.height-20;
+var dx = 2;
+var dy = -2;
+var paddleHeight = 10;
+var paddleWidth = 75;
+var paddleX = (canvas.width-paddleWidth)/2;
+var rightPressed = false;
+var leftPressed = false;
+var brickRowCount = 5;
+var brickColumnCount = 11;
+var brickWidth = 75;
+var brickHeight = 20;
+var brickPadding = 10;
+var brickOffsetTop = 30;
+var brickOffsetLeft = 30;
+var count=0;
+var counter = 0;
+var div = document.createElement('div');
+var magic = 0;
+var finalScore = 15;
+var bricks = [];
+for(c=0; c<brickColumnCount; c++) {
+    bricks[c] = [];
+    for(r=0; r<brickRowCount; r++) {
+        bricks[c][r] = { x: 0, y: 0, status: 1, magic: 0 };
+		
+    }
+}
+var row = Math.floor(Math.random() * brickRowCount);
+var column = Math.floor(Math.random() * brickColumnCount);
+
+//console.log("the value of row and column is " + row + "and "+column);
+
+document.addEventListener("keydown", keyDownHandler, false);
+document.addEventListener("keyup", keyUpHandler, false);
+
+function keyDownHandler(e) {
+    if(e.keyCode == 39) {
+        rightPressed = true;
+    }
+    else if(e.keyCode == 37) {
+        leftPressed = true;
+    }
+}
+function keyUpHandler(e) {
+    if(e.keyCode == 39) {
+        rightPressed = false;
+    }
+    else if(e.keyCode == 37) {
+        leftPressed = false;
+    }
+}
+function drawBall() {
+    ctx.beginPath();
+    ctx.arc(x, y, ballRadius, 0, Math.PI*2);
+    ctx.fillStyle = "#0095DD";
+    ctx.fill();
+    ctx.closePath();
+}
+function drawPaddle() {
+    ctx.beginPath();
+    ctx.rect(paddleX, canvas.height-paddleHeight, paddleWidth, paddleHeight);
+    ctx.fillStyle = "grey";
+    ctx.fill();
+	ctx.shadowColor = "black";
+    ctx.closePath();
+}
+function drawBricks() {
+		ctx.font = "14px Arial";
+		ctx.fillText("score"+' '+count,420,17);	
+    for(c=0; c<brickColumnCount; c++) {
+        for(r=0; r<brickRowCount; r++) {
+            if((r==row)&&(c==column)&&(bricks[c][r].status == 1))
+            {
+            var brickX = (c*(brickWidth+brickPadding))+brickOffsetLeft;
+            var brickY = (r*(brickHeight+brickPadding))+brickOffsetTop;
+            bricks[c][r].x = brickX;
+            bricks[c][r].y = brickY;
+            ctx.beginPath();
+            ctx.rect(brickX, brickY, brickWidth, brickHeight);
+            ctx.fillStyle = "yellow";
+            ctx.fill();
+            ctx.closePath();
+            }
+             else if(bricks[c][r].status == 1) {
+            var brickX = (c*(brickWidth+brickPadding))+brickOffsetLeft;
+            var brickY = (r*(brickHeight+brickPadding))+brickOffsetTop;
+            bricks[c][r].x = brickX;
+            bricks[c][r].y = brickY;
+            ctx.beginPath();
+			ctx.shadowColor = "black";
+			ctx.shadowBlur = 20;
+            ctx.rect(brickX, brickY, brickWidth, brickHeight);
+            ctx.fillStyle = "red";
+			
+            ctx.fill();
+            ctx.closePath();
+             }
+        }
+    }
+}
+
+
+function collisionDetection() {
+    for(c=0; c<brickColumnCount; c++) {
+        for(r=0; r<brickRowCount; r++) {
+            var b = bricks[c][r];
+			
+          if(b.status == 1) {
+                if(x > b.x && x < b.x+brickWidth && y > b.y && y < b.y+brickHeight) {
+                    dy = -dy;
+                    b.status = 0;
+					count++;
+				if((r==row)&&(c==column)){
+					
+					console.log('magic:'+magic);
+					if(((c-1)>=0) && bricks[c-1][r].status==1 && typeof bricks[c-1][r] != typeof undefined)
+					{
+						bricks[c-1][r].status = 0;
+						count++;
+						console.log('brick'+bricks[c-1][r]);
+					}
+					if(((c+1)<brickColumnCount) && bricks[c+1][r].status==1 && typeof bricks[c+1][r] != typeof undefined){
+						bricks[c+1][r].status = 0;
+						count++;
+						console.log('second:'+count);
+					}
+					if(((r-1)>=0) && bricks[c][r-1].status==1 && typeof bricks[c][r-1] != typeof undefined){
+						bricks[c][r-1].status = 0;
+						count++;
+						console.log('third:'+count);
+					}
+					if(((r+1)<brickRowCount) && bricks[c][r+1].status==1 && typeof bricks[c][r+1] != typeof undefined){
+						bricks[c][r+1].status = 0;
+						count++;
+						console.log('fourh	:'+count);
+					}
+					
+				}
+                }
+            }
+			
+        }
+    }
+	
+	
+}
+function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    drawBricks();
+    drawBall();
+    drawPaddle();
+    collisionDetection();
+	ThreeLevels();
+    if(x + dx > canvas.width-ballRadius || x + dx < ballRadius) {
+        dx = -dx;
+    }
+    if(y + dy < ballRadius) {
+        dy = -dy;
+    }
+     else 
+        if(y + dy > canvas.height-ballRadius)
+    {
+        console.log("in true");
+		
+         if(x > paddleX && x < paddleX + paddleWidth) {
+            dy = -dy;
+    }
+    else
+    {
+	if(count!=15){
+         ctx.font = "30px Arial";
+         ctx.fillText("Game Over",canvas.width/2-30,canvas.height/2);
+          clearInterval(myvar);    
+         console.log("in false");
+		}
+    } 
+    }
+    
+    
+    if(rightPressed && paddleX < canvas.width-paddleWidth) {
+        paddleX += 5;
+    }
+    else if(leftPressed && paddleX > 0) {
+        paddleX -= 5;
+    }
+    
+    x += dx;
+    y += dy;
+}
+
+function ThreeLevels(){
+
+if(count == 15){
+	console.log('iam 15');
+	ctx.font="30px Comic Sans MS";
+	ctx.fillStyle = "red";
+	ctx.textAlign = "center";	
+	ctx.fillText("You Win",240,170);
+
+	}
+}
+//for(i=1;i<=3;i++){
+	
+//}
+ var myvar = setInterval(draw, 10);	
+ </script>
+ </html>
